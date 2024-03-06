@@ -21,7 +21,6 @@ public class Automato {
     }
 
     public void aplicarEstrela() {
-        
     }
 
     public static void salvarAutomato(Automato automato) throws IOException {
