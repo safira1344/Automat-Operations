@@ -21,11 +21,47 @@ public class Automato {
     }
 
     public void aplicarEstrela() {
+        State estadoInicial = new State();
+
+        for (State state : this.states) {
+            if (state.isInitial) {
+                estadoInicial = state;
+                break;
+            }
+        }
+
+        estadoInicial.isInitial = false;
+
+        State novoEstado = new State();
+        novoEstado.isInitial = true;
+        novoEstado.isFinal = true;
+        novoEstado.id = Integer.toString(this.states.size());
+        novoEstado.name = "q" + novoEstado.id;
+        novoEstado.x = 500;
+        novoEstado.y = 500;
         
+        this.states.add(novoEstado);
+
+        for (State state : this.states) {
+            if (state.isFinal) {
+                Transition newTransition2 = new Transition();
+                newTransition2.from = Integer.parseInt(state.id);
+                newTransition2.to = Integer.parseInt(estadoInicial.id);
+                newTransition2.read = "";
+
+                this.transitions.add(newTransition2);
+            }
+        }
+
     }
 
-    public static void salvarAutomato(Automato automato) throws IOException {
-        File file = new File("automatoNovo.jff");
+    public static Automato getAutomatoUniao(Automato automato1, Automato automato2) {
+        return new Automato();
+       
+    }
+
+    public static void salvarAutomato(Automato automato, String path) throws IOException {
+        File file = new File(path);
         FileWriter writer = new FileWriter(file);
 
         writer.write(
@@ -69,7 +105,9 @@ public class Automato {
         writer.close();
     }
 
-    public static Automato extrairAutomato(File arquivo) throws IOException {
+    public static Automato extrairAutomato(String path) throws IOException {
+        File arquivo = new File(path);
+
         Automato automaton = new Automato();
         automaton.states = new ArrayList<>();
         automaton.transitions = new ArrayList<>();

@@ -3,12 +3,13 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File file = new File("automato.jff");
 
-        Automato automato = Automato.extrairAutomato(file);
+        Automato automato = Automato.extrairAutomato("automato.jff");
 
         automato.aplicarComplemento();
+        Automato.salvarAutomato(automato, "automato-complemento.jff");
 
-        Automato.salvarAutomato(automato);
+        automato.aplicarEstrela();
+        Automato.salvarAutomato(automato, "automato-estrela.jff");
     }
 }
