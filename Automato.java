@@ -107,6 +107,66 @@ public class Automato {
         return newAutomato;
     }
 
+    public static Automato getAutomatoConcatenacao(Automato automato1, Automato automato2) {
+        Automato newAutomato = new Automato();
+
+        List<Integer> finalStates = new ArrayList<Integer>();
+
+        // percorre a lista de estados do automato1 modificando os IDS e adiciona os
+        // estados ao novo automato
+        for (State state : automato1.states) {
+            newAutomato.states.add(state);
+        }
+
+        // percorre a lista de estados do automato 2 modificando os IDS e adiciona os
+        // estados ao novo automato
+        for (State state : automato2.states) {
+            state.id = Integer.toString((Integer.parseInt(state.id)) + automato1.states.size());
+            state.name = "q" + state.id;
+            state.y = state.y + 200;
+            newAutomato.states.add(state);
+        }
+
+        // percorre a lista de transições do automato 1 aplicando as alterações de ids
+        for (Transition transition : automato1.transitions) {
+            newAutomato.transitions.add(transition);
+        }
+
+        // percorre a lista de transições do automato 2 aplicando as alterações de ids
+        for (Transition transition : automato2.transitions) {
+            transition.from = transition.from + automato1.states.size();
+            transition.to = transition.to + automato1.states.size();
+            newAutomato.transitions.add(transition);
+        }
+
+        for (State state : automato1.states) {
+            // retira a tag de estado final dos estados do automato 1 e salva na lista
+            // finalState
+            if (state.isFinal) {
+                finalStates.add(Integer.parseInt(state.id));
+                state.isFinal = false;
+            }
+        }
+
+        for (State state : automato2.states) {
+            if (state.isInitial) {
+                // para cada estado final do automato 1, cria uma transição para o estado
+                // inicial do automato 2
+                for (Integer finalState : finalStates) {
+                    Transition transition = new Transition();
+
+                    transition.from = finalState;
+                    transition.to = Integer.parseInt(state.id);
+                    transition.read = "";
+
+                    newAutomato.transitions.add(transition);
+                }
+                state.isInitial = false;
+            }
+        }
+
+        return newAutomato;
+    }
 
     public static void salvarAutomato(Automato automato, String path) throws IOException {
         File file = new File(path);

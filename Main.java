@@ -8,9 +8,11 @@ public class Main {
 
         Automato automato2 = Automato.extrairAutomato("automato2.jff");  
 
-        Automato newAutomato = Automato.getAutomatoUniao(automato1, automato2);
-        Automato.salvarAutomato(newAutomato, "automato-uniao.jff");
+        // Automato newAutomato = Automato.getAutomatoUniao(automato1, automato2);
+        // Automato.salvarAutomato(newAutomato, "automato-uniao.jff");
 
+        Automato newAutomato = Automato.getAutomatoConcatenacao(automato1, automato2);
+        Automato.salvarAutomato(newAutomato, "automato-concatenacao.jff");
 
         // automato.aplicarComplemento();
         // Automato.salvarAutomato(automato, "automato-complemento.jff");
