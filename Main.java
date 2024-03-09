@@ -4,12 +4,18 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        Automato automato = Automato.extrairAutomato("automato.jff");
+        Automato automato1 = Automato.extrairAutomato("automato.jff");
 
-        automato.aplicarComplemento();
-        Automato.salvarAutomato(automato, "automato-complemento.jff");
+        Automato automato2 = Automato.extrairAutomato("automato2.jff");  
 
-        automato.aplicarEstrela();
-        Automato.salvarAutomato(automato, "automato-estrela.jff");
+        Automato newAutomato = Automato.getAutomatoUniao(automato1, automato2);
+        Automato.salvarAutomato(newAutomato, "automato-uniao.jff");
+
+
+        // automato.aplicarComplemento();
+        // Automato.salvarAutomato(automato, "automato-complemento.jff");
+
+        // automato.aplicarEstrela();
+        // Automato.salvarAutomato(automato, "automato-estrela.jff");
     }
 }

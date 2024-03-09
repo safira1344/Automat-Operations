@@ -14,6 +14,11 @@ public class Automato {
     public List<State> states;
     public List<Transition> transitions;
 
+    public Automato() {
+        this.states = new ArrayList<State>();
+        this.transitions = new ArrayList<Transition>();
+    }
+
     public void aplicarComplemento() {
         for (State state : this.states) {
             state.isFinal = !state.isFinal;
@@ -39,7 +44,7 @@ public class Automato {
         novoEstado.name = "q" + novoEstado.id;
         novoEstado.x = 500;
         novoEstado.y = 500;
-        
+
         this.states.add(novoEstado);
 
         for (State state : this.states) {
@@ -56,9 +61,52 @@ public class Automato {
     }
 
     public static Automato getAutomatoUniao(Automato automato1, Automato automato2) {
-        return new Automato();
-       
+        Automato newAutomato = new Automato();
+
+        State newState = new State("0", "q0", -100f, 100f, true, false);
+
+        newAutomato.states.add(newState);
+
+        for (State state : automato1.states) {
+            state.id = Integer.toString(Integer.parseInt(state.id) + 1);
+            state.name = "q" + state.id;
+            newAutomato.states.add(state);
+
+            if (state.isInitial) {
+                state.isInitial = false;
+                Transition transition = new Transition(Integer.parseInt(newState.id), Integer.parseInt(state.id), "");
+                newAutomato.transitions.add(transition);
+            }
+        }
+
+        for (State state : automato2.states) {
+            state.id = Integer.toString((Integer.parseInt(state.id) + 1) + automato1.states.size());
+            state.name = "q" + state.id;
+            state.y = state.y + 200;
+            newAutomato.states.add(state);
+
+            if (state.isInitial) {
+                state.isInitial = false;
+                Transition transition = new Transition(Integer.parseInt(newState.id), Integer.parseInt(state.id), "");
+                newAutomato.transitions.add(transition);
+            }
+        }
+
+        for (Transition transition : automato1.transitions) {
+            transition.from = transition.from + 1;
+            transition.to = transition.to + 1;
+            newAutomato.transitions.add(transition);
+        }
+
+        for (Transition transition : automato2.transitions) {
+            transition.from = transition.from + automato1.states.size() + 1;
+            transition.to = transition.to + automato1.states.size() + 1;
+            newAutomato.transitions.add(transition);
+        }
+
+        return newAutomato;
     }
+
 
     public static void salvarAutomato(Automato automato, String path) throws IOException {
         File file = new File(path);
