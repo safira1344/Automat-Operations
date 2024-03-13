@@ -1,4 +1,4 @@
-public class State {
+public class Estado {
     public String id;
     public String name;
     public float x;
@@ -6,11 +6,11 @@ public class State {
     public boolean isInitial;
     public boolean isFinal;
 
-    public State(){
+    public Estado(){
 
     }
 
-    public State(String id, String name, float x, float y, boolean isInitial, boolean isFinal){
+    public Estado(String id, String name, float x, float y, boolean isInitial, boolean isFinal){
         this.id = id;
         this.name = name;
         this.x = x;

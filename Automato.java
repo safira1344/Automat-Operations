@@ -11,166 +11,165 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.*;
 
 public class Automato {
-    public List<State> states;
-    public List<Transition> transitions;
+    public List<Estado> estados;
+    public List<Transicao> transicoes;
 
     public Automato() {
-        this.states = new ArrayList<State>();
-        this.transitions = new ArrayList<Transition>();
+        this.estados = new ArrayList<Estado>();
+        this.transicoes = new ArrayList<Transicao>();
     }
 
     public void aplicarComplemento() {
-        for (State state : this.states) {
-            state.isFinal = !state.isFinal;
+        for (Estado estado : this.estados) {
+            estado.isFinal = !estado.isFinal;
         }
     }
 
     public void aplicarEstrela() {
-        State estadoInicial = new State();
+        Estado estadoInicial = new Estado();
 
-        for (State state : this.states) {
-            if (state.isInitial) {
-                estadoInicial = state;
+        for (Estado estado : this.estados) {
+            if (estado.isInitial) {
+                estadoInicial = estado;
                 break;
             }
         }
 
         estadoInicial.isInitial = false;
 
-        State novoEstado = new State();
+        Estado novoEstado = new Estado();
         novoEstado.isInitial = true;
         novoEstado.isFinal = true;
-        novoEstado.id = Integer.toString(this.states.size());
+        novoEstado.id = Integer.toString(this.estados.size());
         novoEstado.name = "q" + novoEstado.id;
-        novoEstado.x = 500;
-        novoEstado.y = 500;
+        novoEstado.x = -100;
+        novoEstado.y = 100;
 
-        this.states.add(novoEstado);
+        this.estados.add(novoEstado);
 
-        for (State state : this.states) {
-            if (state.isFinal) {
-                Transition newTransition2 = new Transition();
-                newTransition2.from = Integer.parseInt(state.id);
-                newTransition2.to = Integer.parseInt(estadoInicial.id);
-                newTransition2.read = "";
+        for (Estado estado : this.estados) {
+            if (estado.isFinal) {
+                Transicao novaTransicao = new Transicao();
+                novaTransicao.from = Integer.parseInt(estado.id);
+                novaTransicao.to = Integer.parseInt(estadoInicial.id);
+                novaTransicao.read = "";
 
-                this.transitions.add(newTransition2);
+                this.transicoes.add(novaTransicao);
             }
         }
-
     }
 
     public static Automato getAutomatoUniao(Automato automato1, Automato automato2) {
-        Automato newAutomato = new Automato();
+        Automato novoAutomato = new Automato();
 
-        State newState = new State("0", "q0", -100f, 100f, true, false);
+        Estado novoEstado = new Estado("0", "q0", -100f, 100f, true, false);
 
-        newAutomato.states.add(newState);
+        novoAutomato.estados.add(novoEstado);
 
-        for (State state : automato1.states) {
-            state.id = Integer.toString(Integer.parseInt(state.id) + 1);
-            state.name = "q" + state.id;
-            newAutomato.states.add(state);
+        for (Estado estado : automato1.estados) {
+            estado.id = Integer.toString(Integer.parseInt(estado.id) + 1);
+            estado.name = "q" + estado.id;
+            novoAutomato.estados.add(estado);
 
-            if (state.isInitial) {
-                state.isInitial = false;
-                Transition transition = new Transition(Integer.parseInt(newState.id), Integer.parseInt(state.id), "");
-                newAutomato.transitions.add(transition);
+            if (estado.isInitial) {
+                estado.isInitial = false;
+                Transicao transicao = new Transicao(Integer.parseInt(novoEstado.id), Integer.parseInt(estado.id), "");
+                novoAutomato.transicoes.add(transicao);
             }
         }
 
-        for (State state : automato2.states) {
-            state.id = Integer.toString((Integer.parseInt(state.id) + 1) + automato1.states.size());
-            state.name = "q" + state.id;
-            state.y = state.y + 200;
-            newAutomato.states.add(state);
+        for (Estado estado : automato2.estados) {
+            estado.id = Integer.toString((Integer.parseInt(estado.id) + 1) + automato1.estados.size());
+            estado.name = "q" + estado.id;
+            estado.y = estado.y + 200;
+            novoAutomato.estados.add(estado);
 
-            if (state.isInitial) {
-                state.isInitial = false;
-                Transition transition = new Transition(Integer.parseInt(newState.id), Integer.parseInt(state.id), "");
-                newAutomato.transitions.add(transition);
+            if (estado.isInitial) {
+                estado.isInitial = false;
+                Transicao transicao = new Transicao(Integer.parseInt(novoEstado.id), Integer.parseInt(estado.id), "");
+                novoAutomato.transicoes.add(transicao);
             }
         }
 
-        for (Transition transition : automato1.transitions) {
-            transition.from = transition.from + 1;
-            transition.to = transition.to + 1;
-            newAutomato.transitions.add(transition);
+        for (Transicao transicao : automato1.transicoes) {
+            transicao.from = transicao.from + 1;
+            transicao.to = transicao.to + 1;
+            novoAutomato.transicoes.add(transicao);
         }
 
-        for (Transition transition : automato2.transitions) {
-            transition.from = transition.from + automato1.states.size() + 1;
-            transition.to = transition.to + automato1.states.size() + 1;
-            newAutomato.transitions.add(transition);
+        for (Transicao transicao : automato2.transicoes) {
+            transicao.from = transicao.from + automato1.estados.size() + 1;
+            transicao.to = transicao.to + automato1.estados.size() + 1;
+            novoAutomato.transicoes.add(transicao);
         }
 
-        return newAutomato;
+        return novoAutomato;
     }
 
     public static Automato getAutomatoConcatenacao(Automato automato1, Automato automato2) {
-        Automato newAutomato = new Automato();
+        Automato novoAutomato = new Automato();
 
-        List<Integer> finalStates = new ArrayList<Integer>();
+        List<Integer> estadosFinais = new ArrayList<Integer>();
 
         // percorre a lista de estados do automato1 modificando os IDS e adiciona os
         // estados ao novo automato
-        for (State state : automato1.states) {
-            newAutomato.states.add(state);
+        for (Estado estado : automato1.estados) {
+            novoAutomato.estados.add(estado);
         }
 
         // percorre a lista de estados do automato 2 modificando os IDS e adiciona os
         // estados ao novo automato
-        for (State state : automato2.states) {
-            state.id = Integer.toString((Integer.parseInt(state.id)) + automato1.states.size());
-            state.name = "q" + state.id;
-            state.y = state.y + 200;
-            newAutomato.states.add(state);
+        for (Estado estado : automato2.estados) {
+            estado.id = Integer.toString((Integer.parseInt(estado.id)) + automato1.estados.size());
+            estado.name = "q" + estado.id;
+            estado.y = estado.y + 200;
+            novoAutomato.estados.add(estado);
         }
 
         // percorre a lista de transições do automato 1 aplicando as alterações de ids
-        for (Transition transition : automato1.transitions) {
-            newAutomato.transitions.add(transition);
+        for (Transicao transicao : automato1.transicoes) {
+            novoAutomato.transicoes.add(transicao);
         }
 
         // percorre a lista de transições do automato 2 aplicando as alterações de ids
-        for (Transition transition : automato2.transitions) {
-            transition.from = transition.from + automato1.states.size();
-            transition.to = transition.to + automato1.states.size();
-            newAutomato.transitions.add(transition);
+        for (Transicao transicao : automato2.transicoes) {
+            transicao.from = transicao.from + automato1.estados.size();
+            transicao.to = transicao.to + automato1.estados.size();
+            novoAutomato.transicoes.add(transicao);
         }
 
-        for (State state : automato1.states) {
+        for (Estado estado : automato1.estados) {
             // retira a tag de estado final dos estados do automato 1 e salva na lista
             // finalState
-            if (state.isFinal) {
-                finalStates.add(Integer.parseInt(state.id));
-                state.isFinal = false;
+            if (estado.isFinal) {
+                estadosFinais.add(Integer.parseInt(estado.id));
+                estado.isFinal = false;
             }
         }
 
-        for (State state : automato2.states) {
-            if (state.isInitial) {
+        for (Estado estado : automato2.estados) {
+            if (estado.isInitial) {
                 // para cada estado final do automato 1, cria uma transição para o estado
                 // inicial do automato 2
-                for (Integer finalState : finalStates) {
-                    Transition transition = new Transition();
+                for (Integer estadoFinal : estadosFinais) {
+                    Transicao transicao = new Transicao();
 
-                    transition.from = finalState;
-                    transition.to = Integer.parseInt(state.id);
-                    transition.read = "";
+                    transicao.from = estadoFinal;
+                    transicao.to = Integer.parseInt(estado.id);
+                    transicao.read = "";
 
-                    newAutomato.transitions.add(transition);
+                    novoAutomato.transicoes.add(transicao);
                 }
-                state.isInitial = false;
+                estado.isInitial = false;
             }
         }
 
-        return newAutomato;
+        return novoAutomato;
     }
 
-    public static void salvarAutomato(Automato automato, String path) throws IOException {
-        File file = new File(path);
-        FileWriter writer = new FileWriter(file);
+    public static void exportarAutomato(Automato automato, String diretorio) throws IOException {
+        File arquivo = new File(diretorio);
+        FileWriter writer = new FileWriter(arquivo);
 
         writer.write(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!--Created with JFLAP 6.4. By Safi--><structure>&#13;\n");
@@ -179,14 +178,14 @@ public class Automato {
         writer.write("\t\t<!--The list of states.-->&#13;\n");
 
         // Escreve os estados
-        for (State state : automato.states) {
-            writer.write("\t\t<state id=\"" + state.id + "\" name=\"" + state.name + "\">&#13;\n");
-            writer.write("\t\t\t<x>" + state.x + "</x>&#13;\n");
-            writer.write("\t\t\t<y>" + state.y + "</y>&#13;\n");
-            if (state.isInitial) {
+        for (Estado estado : automato.estados) {
+            writer.write("\t\t<state id=\"" + estado.id + "\" name=\"" + estado.name + "\">&#13;\n");
+            writer.write("\t\t\t<x>" + estado.x + "</x>&#13;\n");
+            writer.write("\t\t\t<y>" + estado.y + "</y>&#13;\n");
+            if (estado.isInitial) {
                 writer.write("\t\t\t<initial/>&#13;\n");
             }
-            if (state.isFinal) {
+            if (estado.isFinal) {
                 writer.write("\t\t\t<final/>&#13;\n");
             }
             writer.write("\t\t</state>&#13;\n");
@@ -195,15 +194,15 @@ public class Automato {
         writer.write("\t\t<!--The list of transitions.-->&#13;\n");
 
         // Escreve as transições
-        for (Transition transition : automato.transitions) {
+        for (Transicao transicao : automato.transicoes) {
             writer.write("\t\t<transition>&#13;\n");
-            writer.write("\t\t\t<from>" + transition.from + "</from>&#13;\n");
-            writer.write("\t\t\t<to>" + transition.to + "</to>&#13;\n");
+            writer.write("\t\t\t<from>" + transicao.from + "</from>&#13;\n");
+            writer.write("\t\t\t<to>" + transicao.to + "</to>&#13;\n");
             // Caso a transição seja epsilon
-            if (transition.read.isBlank()) {
+            if (transicao.read.isBlank()) {
                 writer.write("\t\t\t<read/>\n");
             } else {
-                writer.write("\t\t\t<read>" + transition.read + "</read>&#13;\n");
+                writer.write("\t\t\t<read>" + transicao.read + "</read>&#13;\n");
             }
             writer.write("\t\t</transition>&#13;\n");
         }
@@ -213,12 +212,12 @@ public class Automato {
         writer.close();
     }
 
-    public static Automato extrairAutomato(String path) throws IOException {
-        File arquivo = new File(path);
+    public static Automato importarAutomato(String diretorio) throws IOException {
+        File arquivo = new File(diretorio);
 
-        Automato automaton = new Automato();
-        automaton.states = new ArrayList<>();
-        automaton.transitions = new ArrayList<>();
+        Automato automato = new Automato();
+        automato.estados = new ArrayList<>();
+        automato.transicoes = new ArrayList<>();
 
         Scanner scanner = new Scanner(arquivo);
         while (scanner.hasNextLine()) {
@@ -226,12 +225,12 @@ public class Automato {
 
             // Quando encontra Inicio de Estado
             if (linha.contains("\t\t<state ")) {
-                State state = new State();
+                Estado estado = new Estado();
                 int inicioId = linha.indexOf("=\"") + 2;
                 int fimId = linha.indexOf("\" ");
                 String id = linha.substring(inicioId, fimId);
 
-                state.id = id;
+                estado.id = id;
 
                 linha = linha.substring(fimId + 2);
 
@@ -239,7 +238,7 @@ public class Automato {
                 int fimName = linha.indexOf("\">");
                 String name = linha.substring(inicioName, fimName);
 
-                state.name = name;
+                estado.name = name;
 
                 linha = scanner.nextLine();
 
@@ -247,7 +246,7 @@ public class Automato {
                 int fimX = linha.indexOf("</");
                 String x = linha.substring(inicioX, fimX);
 
-                state.x = Float.parseFloat(x);
+                estado.x = Float.parseFloat(x);
 
                 linha = scanner.nextLine();
 
@@ -255,25 +254,25 @@ public class Automato {
                 int fimY = linha.indexOf("</");
                 String y = linha.substring(inicioY, fimY);
 
-                state.y = Float.parseFloat(y);
+                estado.y = Float.parseFloat(y);
 
                 // Se chegou no final do estado
                 while (!linha.contains("\t\t</state>")) {
                     // Se é estado inicial
                     if (linha.contains("<initial/>")) {
-                        state.isInitial = true;
+                        estado.isInitial = true;
                     }
                     // Se é estado final
                     if (linha.contains("<final/>")) {
-                        state.isFinal = true;
+                        estado.isFinal = true;
                     }
                     linha = scanner.nextLine();
                 }
 
-                automaton.states.add(state);
+                automato.estados.add(estado);
 
             } else if (linha.contains("\t\t<transition")) {
-                Transition transicao = new Transition();
+                Transicao transicao = new Transicao();
 
                 linha = scanner.nextLine();
 
@@ -306,21 +305,22 @@ public class Automato {
                     transicao.read = read;
                 }
 
-                automaton.transitions.add(transicao);
+                automato.transicoes.add(transicao);
 
                 linha = scanner.nextLine();
             }
 
         }
         scanner.close();
-        return automaton;
+        return automato;
     }
 
-    public static Automato extrairAutomatoXML(File inputFile) throws Exception {
-        Automato automaton = new Automato();
+    public static Automato importarAutomatoXML(String caminho) throws Exception {
+        File arquivo = new File(caminho);
+        Automato automato = new Automato();
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(inputFile);
+        Document doc = dBuilder.parse(arquivo);
         doc.getDocumentElement().normalize();
 
         NodeList nList = doc.getElementsByTagName("state");
@@ -337,15 +337,15 @@ public class Automato {
                 boolean isInitial = eElement.getElementsByTagName("initial").getLength() > 0;
                 boolean isFinal = eElement.getElementsByTagName("final").getLength() > 0;
 
-                State state = new State();
-                state.id = id;
-                state.name = name;
-                state.x = x;
-                state.y = y;
-                state.isInitial = isInitial;
-                state.isFinal = isFinal;
+                Estado estado = new Estado();
+                estado.id = id;
+                estado.name = name;
+                estado.x = x;
+                estado.y = y;
+                estado.isInitial = isInitial;
+                estado.isFinal = isFinal;
 
-                automaton.states.add(state);
+                automato.estados.add(estado);
             }
         }
 
@@ -360,19 +360,19 @@ public class Automato {
                 int to = Integer.parseInt(tElement.getElementsByTagName("to").item(0).getTextContent());
                 String read = tElement.getElementsByTagName("read").item(0).getTextContent();
 
-                Transition transition = new Transition();
-                transition.from = from;
-                transition.to = to;
-                transition.read = read;
+                Transicao transicao = new Transicao();
+                transicao.from = from;
+                transicao.to = to;
+                transicao.read = read;
 
-                automaton.transitions.add(transition);
+                automato.transicoes.add(transicao);
             }
         }
 
-        return automaton;
+        return automato;
     }
 
-    public static void salvarAutomatoXML(Automato automato) throws Exception {
+    public static void exportarAutomatoXML(Automato automato) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.newDocument();
@@ -384,51 +384,51 @@ public class Automato {
         type.appendChild(doc.createTextNode("fa"));
         rootElement.appendChild(type);
 
-        Element automaton = doc.createElement("automaton");
-        rootElement.appendChild(automaton);
+        Element automatoNovo = doc.createElement("automaton");
+        rootElement.appendChild(automatoNovo);
 
-        for (State state : automato.states) {
-            Element stateElement = doc.createElement("state");
-            stateElement.setAttribute("id", state.id);
-            stateElement.setAttribute("name", state.name);
+        for (Estado estado : automato.estados) {
+            Element estadoElement = doc.createElement("state");
+            estadoElement.setAttribute("id", estado.id);
+            estadoElement.setAttribute("name", estado.name);
 
             Element x = doc.createElement("x");
-            x.appendChild(doc.createTextNode(Float.toString(state.x)));
-            stateElement.appendChild(x);
+            x.appendChild(doc.createTextNode(Float.toString(estado.x)));
+            estadoElement.appendChild(x);
 
             Element y = doc.createElement("y");
-            y.appendChild(doc.createTextNode(Float.toString(state.y)));
-            stateElement.appendChild(y);
+            y.appendChild(doc.createTextNode(Float.toString(estado.y)));
+            estadoElement.appendChild(y);
 
-            if (state.isInitial) {
+            if (estado.isInitial) {
                 Element initial = doc.createElement("initial");
-                stateElement.appendChild(initial);
+                estadoElement.appendChild(initial);
             }
 
-            if (state.isFinal) {
+            if (estado.isFinal) {
                 Element finalState = doc.createElement("final");
-                stateElement.appendChild(finalState);
+                estadoElement.appendChild(finalState);
             }
 
-            automaton.appendChild(stateElement);
+            automatoNovo.appendChild(estadoElement);
         }
 
-        for (Transition transition : automato.transitions) {
-            Element transitionElement = doc.createElement("transition");
+        for (Transicao transicao : automato.transicoes) {
+            Element transicaoElement = doc.createElement("transition");
 
             Element from = doc.createElement("from");
-            from.appendChild(doc.createTextNode(Integer.toString(transition.from)));
-            transitionElement.appendChild(from);
+            from.appendChild(doc.createTextNode(Integer.toString(transicao.from)));
+            transicaoElement.appendChild(from);
 
             Element to = doc.createElement("to");
-            to.appendChild(doc.createTextNode(Integer.toString(transition.to)));
-            transitionElement.appendChild(to);
+            to.appendChild(doc.createTextNode(Integer.toString(transicao.to)));
+            transicaoElement.appendChild(to);
 
             Element read = doc.createElement("read");
-            read.appendChild(doc.createTextNode(transition.read));
-            transitionElement.appendChild(read);
+            read.appendChild(doc.createTextNode(transicao.read));
+            transicaoElement.appendChild(read);
 
-            automaton.appendChild(transitionElement);
+            automatoNovo.appendChild(transicaoElement);
         }
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
