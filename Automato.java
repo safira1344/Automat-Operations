@@ -10,7 +10,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.*;
 
-public class Automato {
+public class Automato implements OperacoesAutomatoInterface {
     public List<Estado> estados;
     public List<Transicao> transicoes;
 
@@ -19,12 +19,14 @@ public class Automato {
         this.transicoes = new ArrayList<Transicao>();
     }
 
+    @Override
     public void aplicarComplemento() {
         for (Estado estado : this.estados) {
             estado.isFinal = !estado.isFinal;
         }
     }
 
+    @Override
     public void aplicarEstrela() {
         Estado estadoInicial = new Estado();
 
@@ -59,7 +61,8 @@ public class Automato {
         }
     }
 
-    public static Automato getAutomatoUniao(Automato automato1, Automato automato2) {
+    @Override
+    public void aplicarUniao(Automato automato1, Automato automato2) {
         Automato novoAutomato = new Automato();
 
         Estado novoEstado = new Estado("0", "q0", -100f, 100f, true, false);
@@ -103,10 +106,12 @@ public class Automato {
             novoAutomato.transicoes.add(transicao);
         }
 
-        return novoAutomato;
+        this.estados = novoAutomato.estados;
+        this.transicoes = novoAutomato.transicoes;
     }
 
-    public static Automato getAutomatoConcatenacao(Automato automato1, Automato automato2) {
+    @Override
+    public void aplicarConcatenacao(Automato automato1, Automato automato2) {
         Automato novoAutomato = new Automato();
 
         List<Integer> estadosFinais = new ArrayList<Integer>();
@@ -164,7 +169,33 @@ public class Automato {
             }
         }
 
-        return novoAutomato;
+        this.estados = novoAutomato.estados;
+        this.transicoes = novoAutomato.transicoes;
+    }
+
+    @Override
+    public void aplicarInterseccao(Automato automato1, Automato automato2) {
+
+        Automato novoAutomato = new Automato();
+
+        automato1.aplicarComplemento();
+        automato2.aplicarComplemento();
+
+        novoAutomato.aplicarUniao(automato1, automato2);
+
+        this.estados = novoAutomato.estados;
+        this.transicoes = novoAutomato.transicoes;
+    }
+
+    @Override
+    public void converterAfnParaAfd() {
+        throw new UnsupportedOperationException("Unimplemented method 'converterAfnParaAfd'");
+    }
+
+    @Override
+    public void aplicarMinimizacao() {
+        throw new UnsupportedOperationException("Unimplemented method 'aplicarMinimizacao'");
+
     }
 
     public static void exportarAutomato(Automato automato, String diretorio) throws IOException {
@@ -437,4 +468,5 @@ public class Automato {
         StreamResult result = new StreamResult(new File("automatoNovo.jff"));
         transformer.transform(source, result);
     }
+
 }

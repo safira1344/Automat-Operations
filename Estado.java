@@ -6,11 +6,10 @@ public class Estado {
     public boolean isInitial;
     public boolean isFinal;
 
-    public Estado(){
-
+    public Estado() {
     }
 
-    public Estado(String id, String name, float x, float y, boolean isInitial, boolean isFinal){
+    public Estado(String id, String name, float x, float y, boolean isInitial, boolean isFinal) {
         this.id = id;
         this.name = name;
         this.x = x;
